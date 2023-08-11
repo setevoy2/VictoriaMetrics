@@ -24,6 +24,11 @@ The following `tip` changes can be tested by building VictoriaMetrics components
 
 ## tip
 
+**Update note**: starting from this release, VictoriaMetrics single-server and vmagent 
+set `honor_timestamps: false` by default in [scrape configs](https://docs.victoriametrics.com/sd_configs.html#scrape_configs)
+if this options isn't set explicitly. The change supposed to significantly improve staleness detection, compression
+and query performance when scraping `cadvisor` metrics. See more details [here](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4697).
+
 * SECURITY: upgrade Go builder from Go1.20.6 to Go1.20.7. The update includes a security fix to the crypto/tls package, as well as bug fixes to the assembler and the compiler. See [the list of issues addressed in Go1.20.7](https://github.com/golang/go/issues?q=milestone%3AGo1.20.7+label%3ACherryPickApproved).
 
 * FEATURE: [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html): add `share_eq_over_time(m[d], eq)` function for calculating the share (in the range `[0...1]`) of raw samples on the given lookbehind window `d`, which are equal to `eq`. See [this feature request](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4441). Thanks to @Damon07 for the [pull request](https://github.com/VictoriaMetrics/VictoriaMetrics/pull/4725).
@@ -34,6 +39,7 @@ The following `tip` changes can be tested by building VictoriaMetrics components
 * FEATURE: [vmctl](https://docs.victoriametrics.com/vmctl.html): add support of `week` step for [time-based chunking migration](https://docs.victoriametrics.com/vmctl.html#using-time-based-chunking-of-migration). See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4738).
 * FEATURE: [vmctl](https://docs.victoriametrics.com/vmctl.html): do not add `/api/v1/read` suffix to remote read storage address defined by `--remote-read-src-addr` if a `--remote-read-disable-path-append` command-line flag is set. It allows an overriding path for remote-read API via `--remote-read-src-addr`. See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4655).
 * FEATURE: [vmui](https://docs.victoriametrics.com/#vmui): add warning in query field of vmui for partial data responses. See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4721).
+* FEATURE: [vmui](https://docs.victoriametrics.com/#vmui): allow displaying the full error message on click for trimmed error messages in vmui. See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4719).
 * FEATURE: [Official Grafana dashboards for VictoriaMetrics](https://grafana.com/orgs/victoriametrics): add `Concurrent inserts` panel to vmagent's dasbhoard. The new panel supposed to show whether the number of concurrent inserts processed by vmagent isn't reaching the limit.
 * FEATURE: [Official Grafana dashboards for VictoriaMetrics](https://grafana.com/orgs/victoriametrics): add panels for absolute Mem and CPU usage by vmalert. See related issue [here](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4627).
 * FEATURE: [Official Grafana dashboards for VictoriaMetrics](https://grafana.com/orgs/victoriametrics): correctly calculate `Bytes per point` value for single-server and cluster VM dashboards. Before, the calculation mistakenly accounted for the number of entries in indexdb in denominator, which could have shown lower values than expected.
@@ -41,7 +47,10 @@ The following `tip` changes can be tested by building VictoriaMetrics components
 
 * BUGFIX: [vmagent](https://docs.victoriametrics.com/vmagent.html): use local scrape timestamps for the scraped metrics unless `honor_timestamps: true` option is explicitly set at [scrape_config](https://docs.victoriametrics.com/sd_configs.html#scrape_configs). This fixes gaps for metrics collected from [cadvisor](https://github.com/google/cadvisor) or similar exporters, which export metrics with invalid timestamps. See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4697) and [this comment](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4697#issuecomment-1654614799) for details. The issue has been introduced in [v1.68.0](#v1680).
 * BUGFIX: [vmalert](https://docs.victoriametrics.com/vmalert.html): properly set `vmalert_config_last_reload_successful` value on configuration updates or rollbacks. The bug was introduced in [v1.92.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.92.0) in [this PR](https://github.com/VictoriaMetrics/VictoriaMetrics/pull/4543).
+* BUGFIX: [vmalert](https://docs.victoriametrics.com/vmalert.html): fix `vmalert_remotewrite_send_duration_seconds_total` value, before it didn't count in the real time spending on remote write requests. See [this pr](https://github.com/VictoriaMetrics/VictoriaMetrics/pull/4801) for details.
 * BUGFIX: [vmbackupmanager](https://docs.victoriametrics.com/vmbackupmanager.html): fix panic when creating a backup to a local filesystem on Windows. See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4704).
+* BUGFIX: [vmui](https://docs.victoriametrics.com/#vmui): fix the response of active queries to valid JSON. See [this pull request](https://github.com/VictoriaMetrics/VictoriaMetrics/pull/4782).
+* BUGFIX: [vmagent](https://docs.victoriametrics.com/vmagent.html): keep unmatched series when `remoteWrite.streamAggr.dropInput` is set to `false` to match intended behaviour introduced at [v1.92.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.92.0). See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4804).
 * BUGFIX: [vmctl](https://docs.victoriametrics.com/vmctl.html): continue the migration process when on of the tenant in the cluster has no metrics. See [this issue](https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4796).
 
 
